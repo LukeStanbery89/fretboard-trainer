@@ -1,0 +1,393 @@
+/* ===== Theme tokens ===== */
+.app {
+  --bg: #111318;
+  --bg-2: #1b1e26;
+  --bg-3: #232733;
+  --text: #e6e8ee;
+  --text-dim: #9aa1b0;
+  --border: #333846;
+  --accent: #7aa2ff;
+  --board-bg: #171a20;
+  --string-color: #d8dde6;
+  --fret-line: #444b5a;
+  --nut-color: #e8d9a8;
+  --inlay-color: #555c6b;
+
+  --dot-tonic: #ff5d73;
+  --dot-third: #ffe066;
+  --dot-fifth: #66d9a8;
+  --dot-seventh: #7aa2ff;
+  --dot-dissonant: #b48cff;
+  --dot-single: #ff8c42;
+
+  --caged-c: #3fa7d6;
+  --caged-a: #7cc45a;
+  --caged-g: #e0a33c;
+  --caged-e: #e0655f;
+  --caged-d: #9a6fd6;
+
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app[data-theme='light'] {
+  --bg: #f4f5f7;
+  --bg-2: #ffffff;
+  --bg-3: #e8ebf0;
+  --text: #1c2130;
+  --text-dim: #5b6270;
+  --border: #d3d8e0;
+  --accent: #2f5bd8;
+  --board-bg: #fbfcfd;
+  --string-color: #3a3f4c;
+  --fret-line: #c6ccd6;
+  --nut-color: #b9a565;
+  --inlay-color: #aeb4c0;
+
+  --dot-tonic: #e63d54;
+  --dot-third: #c9a500;
+  --dot-fifth: #1f9e6e;
+  --dot-seventh: #2f5bd8;
+  --dot-dissonant: #7d49c9;
+  --dot-single: #e0671f;
+}
+
+/* ===== Layout ===== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 6px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+/* ===== Controls ===== */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 24px;
+  align-items: flex-end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.field select {
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text);
+  font-size: 14px;
+  min-width: 120px;
+}
+
+.custom-tuning {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+  padding: 10px 14px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--bg-2);
+}
+
+.custom-string select {
+  min-width: 64px;
+}
+
+.custom-string span {
+  text-align: center;
+}
+
+/* ===== Settings ===== */
+.settings {
+  position: relative;
+}
+
+.settings-toggle {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.settings-panel {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  min-width: 260px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.settings-panel .field.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.reset-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.reset-btn:hover {
+  background: var(--dot-dissonant);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ===== Fretboard ===== */
+.board-wrap {
+  display: flex;
+  gap: 10px;
+  padding: 6px 24px;
+  overflow-x: auto;
+}
+
+.tuning-rails {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 0 2px 0 0;
+}
+
+.rail-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.fretboard {
+  flex: 1;
+  min-width: 640px;
+}
+
+.fb-grid {
+  display: grid;
+  gap: 0;
+  background:
+    var(--board-bg)
+    url('/fretboard_texture.jpg') center / cover no-repeat;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.fb-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border-right: 1px solid var(--fret-line);
+  border-bottom: 1px solid var(--fret-line);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.fb-cell.even-fret {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.app[data-theme='light'] .fb-cell.even-fret {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.nut-cell {
+  justify-content: flex-end;
+  background: var(--bg-2);
+}
+
+.nut {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 12px;
+  background: var(--nut-color);
+}
+
+.string-row-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transform: translateY(-50%);
+  background: var(--string-color);
+}
+
+.inlay-dots {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.inlay-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--inlay-color);
+}
+
+.inlay-2 {
+  gap: 6px;
+}
+
+/* note names on highlighted dots */
+.note-dot {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.dot-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.note-dot.root::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px dashed currentColor;
+  opacity: 0.7;
+}
+
+.note-dot.tonic { background: var(--dot-tonic); }
+.note-dot.third { background: var(--dot-third); }
+.note-dot.fifth { background: var(--dot-fifth); }
+.note-dot.seventh { background: var(--dot-seventh); }
+.note-dot.dissonant { background: var(--dot-dissonant); }
+.note-dot.single { background: var(--dot-single); }
+
+/* string lines between cells (not on the fret-marker row) */
+.fb-cell:not(.fb-marker)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: var(--string-color);
+  z-index: 1;
+}
+
+.app[data-theme='light'] .fb-cell:not(.fb-marker)::after {
+  opacity: 0.5;
+}
+
+/* bottom fret-marker row */
+.fb-marker {
+  min-height: 20px;
+  background: var(--bg-2);
+}
+
+.fb-marker .inlay-dot {
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.fb-marker .inlay-2 {
+  gap: 6px;
+}
+
+.note-dot.caged-root {
+  width: 34px;
+  height: 34px;
+  border-width: 3px;
+}
+
+/* CAGED region bands */
+.fb-cell.caged-c { background: color-mix(in srgb, var(--caged-c) 18%, transparent); }
+.fb-cell.caged-a { background: color-mix(in srgb, var(--caged-a) 18%, transparent); }
+.fb-cell.caged-g { background: color-mix(in srgb, var(--caged-g) 18%, transparent); }
+.fb-cell.caged-e { background: color-mix(in srgb, var(--caged-e) 18%, transparent); }
+.fb-cell.caged-d { background: color-mix(in srgb, var(--caged-d) 18%, transparent); }
+
+.fb-cell.caged-c .note-dot.caged-root { background: var(--caged-c); }
+.fb-cell.caged-a .note-dot.caged-root { background: var(--caged-a); }
+.fb-cell.caged-g .note-dot.caged-root { background: var(--caged-g); }
+.fb-cell.caged-e .note-dot.caged-root { background: var(--caged-e); }
+.fb-cell.caged-d .note-dot.caged-root { background: var(--caged-d); }
+
+/* ===== Legend ===== */
+.legend {
+  padding: 14px 24px;
+  font-size: 13px;
+  color: var(--text-dim);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.b {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.keydot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+.keydot.tonic { background: var(--dot-tonic); }
+.keydot.third { background: var(--dot-third); }
+.keydot.fifth { background: var(--dot-fifth); }
+.keydot.seventh { background: var(--dot-seventh); }
+.keydot.dissonant { background: var(--dot-dissonant); }
