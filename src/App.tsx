@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import Fretboard, { type FretCell } from './components/Fretboard'
+import Fretboard, { type FretCell, type FretLabel } from './components/Fretboard'
 import Controls, { type ViewMode, type TuningState } from './components/Controls'
 import SettingsPanel from './components/SettingsPanel'
 import { scaleTones, intervalClassName } from './lib/scales'
-import { cagedRegions } from './lib/caged'
+import { cagedBarreFrets } from './lib/caged'
 import { chromaticIndex } from './lib/notes'
 import { TUNING_PRESETS, defaultTuningForCount, CUSTOM_ID } from './lib/tunings'
 import {
@@ -81,30 +81,35 @@ function App() {
         const ic = chromaticIndex(cell.note)
         if (tones.has(ic)) {
           const cls = settings.colorByInterval ? intervalClassName(ic) : 'single'
-          cell.dotClassName = cls
+          cell.dots.push({ className: cls, isRoot: ic === 0 })
         }
-        if (ic === 0) cell.isRootDot = true
       }
     }
   }
 
   const annotateCaged = (cells: FretCell[][]) => {
-    const regions = cagedRegions(keyNote, settings.numFrets)
-    for (const region of regions) {
-      const shapeClass = `caged-${region.shape.toLowerCase()}`
+    const barres = cagedBarreFrets(keyNote, settings.numFrets)
+    for (const { fret, shapes } of barres) {
+      const colors = shapes.map((s) => `var(--caged-${s.toLowerCase()})`)
+      const background =
+        colors.length === 1
+          ? colors[0]
+          : `linear-gradient(to right, ${colors
+              .map(
+                (c, i) =>
+                  `${c} ${(100 * i) / colors.length}%, ${c} ${(100 * (i + 1)) / colors.length}%`,
+              )
+              .join(', ')})`
       for (const row of cells) {
-        for (const cell of row) {
-          if (cell.fret >= region.start && cell.fret <= region.end) {
-            cell.cellClassName = shapeClass
-            if (cell.fret === region.rootFret) {
-              cell.dotClassName = 'caged-root'
-              cell.dotLabel = region.shape
-            }
-          }
-        }
+        const cell = row[fret]
+        if (cell) cell.backgroundColor = background
       }
     }
   }
+
+  const cagedLabels: FretLabel[] = cagedBarreFrets(keyNote, settings.numFrets).map(
+    ({ fret, shapes }) => ({ fret, shapes }),
+  )
 
   const annotate = (cells: FretCell[][]) => {
     if (view === 'caged') annotateCaged(cells)
@@ -150,6 +155,7 @@ function App() {
           numFrets={settings.numFrets}
           showNoteNames={settings.showNoteNames}
           annotate={annotate}
+          fretLabels={view === 'caged' ? cagedLabels : undefined}
         />
       </div>
 
@@ -161,7 +167,14 @@ function App() {
             <>Showing <b>{keyNote} {modeName}</b> scale notes</>
           )
         ) : (
-          <>CAGED shapes for <b>{keyNote} {modeName}</b></>
+          <>
+            CAGED barre positions for <b>{keyNote}</b>{' '}
+            <KeyDot c="caged-c" /> C
+            <KeyDot c="caged-a" /> A
+            <KeyDot c="caged-g" /> G
+            <KeyDot c="caged-e" /> E
+            <KeyDot c="caged-d" /> D
+          </>
         )}
       </p>
     </div>

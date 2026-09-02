@@ -1,68 +1,69 @@
 import { chromaticIndex } from './notes'
 
-export interface CagedRegion {
-  shape: 'C' | 'A' | 'G' | 'E' | 'D'
-  /** Root fret position (1-based) of the shape. */
-  rootFret: number
-  /** Region start fret (inclusive). */
-  start: number
-  /** Region end fret (inclusive). */
-  end: number
-}
+export type ShapeName = 'C' | 'A' | 'G' | 'E' | 'D'
 
-const SHAPE_ORDER: ('C' | 'A' | 'G' | 'E' | 'D')[] = ['C', 'A', 'G', 'E', 'D']
+export const CAGED_SHAPES: ShapeName[] = ['C', 'A', 'G', 'E', 'D']
 
 /**
- * Compute the 5 CAGED regions for a given root note.
- *
- * Each shape roots on a specific string (E & G on the low E, C & A on the
- * A string, D on the D string). The fret of that root is derived from where
- * the root note appears on that string. Regions are clamped and ordered
- * ascending so they tile the neck usefully.
+ * The string that each CAGED shape is anchored on — where its root sits.
+ * - E & G anchor on the low E string
+ * - C & A anchor on the A string
+ * - D anchors on the D string
  */
-export function cagedRegions(root: string, numFrets: number): CagedRegion[] {
+export const SHAPE_ANCHOR_STRINGS: Record<ShapeName, number> = {
+  C: 1,
+  A: 1,
+  G: 0,
+  E: 0,
+  D: 2,
+}
+
+/** Chromatic index of each string's open note, indexed by string (0 = low E). */
+export const OPEN_STRING_INDICES = [4, 9, 2, 7, 11, 4] // E A D G B E
+
+const stringFret = (ri: number, stringOpen: number): number => {
+  const fret = ((ri - stringOpen) % 12 + 12) % 12
+  // An otherwise-open movable root sits an octave up so a barre voicing exists.
+  return fret === 0 ? 12 : fret
+}
+
+const anchorFretFor = (shape: ShapeName, root: string): number => {
   const ri = chromaticIndex(root)
-  // Fret on each anchor string for the root (open strings: E=4, A=9, D=2 chromatic).
-  const lowERoot = ((ri - 4) % 12 + 12) % 12
-  const aRoot = ((ri - 9) % 12 + 12) % 12
-  const dRoot = ((ri - 2) % 12 + 12) % 12
-
-  // natural (shallowest) position of the root on its string; 0 maps to fret 12
-  const place = (f: number) => {
-    const v = f === 0 ? 12 : f
-    return Math.max(1, Math.min(numFrets, v))
+  // The C and G shapes only partial-barre the high strings; their barre sits 3
+  // frets below the shape's root (C: A-string root, G: low-E root). When that
+  // would fall below the nut, wrap up an octave so the shape stays on the board
+  // (e.g. F major: G shape low-E root @1 -> barre -2 -> 10). For the eponymous
+  // open root this naturally resolves to the nut (e.g. C: 3-3=0).
+  if (shape === 'C') {
+    const barre = stringFret(ri, OPEN_STRING_INDICES[1]) - 3
+    return barre < 0 ? barre + 12 : barre
   }
-
-  // root fret per shape
-  const rootFret: Record<'C' | 'A' | 'G' | 'E' | 'D', number> = {
-    C: place(aRoot),
-    A: place(aRoot),
-    G: place(lowERoot),
-    E: place(lowERoot),
-    D: place(dRoot),
+  if (shape === 'G') {
+    const barre = stringFret(ri, OPEN_STRING_INDICES[0]) - 3
+    return barre < 0 ? barre + 12 : barre
   }
+  // When the tonic equals the shape's letter, the shape is the eponymous open
+  // chord (open A, open E, open D) — its home is the nut (0).
+  if (shape === root) return 0
+  const anchorOpen = OPEN_STRING_INDICES[SHAPE_ANCHOR_STRINGS[shape]]
+  return stringFret(ri, anchorOpen)
+}
 
-  // Give each shape a region window around its root.
-  const window: Record<'C' | 'A' | 'G' | 'E' | 'D', [number, number]> = {
-    C: [-3, 3],
-    A: [-2, 3],
-    G: [-3, 3],
-    E: [-2, 3],
-    D: [-2, 3],
-  }
-
-  const regions: CagedRegion[] = SHAPE_ORDER.map((shape) => {
-    const rf = rootFret[shape]
-    const [lo, hi] = window[shape]
-    return {
-      shape,
-      rootFret: rf,
-      start: Math.max(1, rf + lo),
-      end: Math.min(numFrets, rf + hi),
+/** The fret at which each CAGED shape should be barred, grouped by fret. */
+export function cagedBarreFrets(
+  root: string,
+  numFrets: number,
+): { fret: number; shapes: ShapeName[] }[] {
+  const byFret = new Map<number, ShapeName[]>()
+  for (const shape of CAGED_SHAPES) {
+    const fret = anchorFretFor(shape, root)
+    if (fret <= numFrets) {
+      const list = byFret.get(fret) ?? []
+      list.push(shape)
+      byFret.set(fret, list)
     }
-  })
-
-  // Sort ascending by root fret so C-A-G-E-D read top to bottom on the neck.
-  regions.sort((a, b) => a.rootFret - b.rootFret)
-  return regions.filter((r) => r.start <= r.end)
+  }
+  return [...byFret.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([fret, shapes]) => ({ fret, shapes }))
 }

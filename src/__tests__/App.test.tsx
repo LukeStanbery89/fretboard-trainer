@@ -40,13 +40,40 @@ describe('App integration', () => {
     expect((selects[0] as HTMLSelectElement).value).toBe('E')
   })
 
-  it('switches to CAGED view and renders region bands and root dots', () => {
+  it('switches to CAGED view and colors the barre-fret columns', () => {
     render(<App />)
     fireEvent.change(screen.getByLabelText('View'), { target: { value: 'caged' } })
-    // CAGED region bands appear for the C shapes
-    const bands = document.querySelectorAll('.fb-cell[class*="caged-"]')
-    expect(bands.length).toBeGreaterThan(0)
-    expect(document.querySelectorAll('.note-dot.caged-root').length).toBeGreaterThan(0)
+    // Colored columns exist (some body cells get an inline background).
+    const colored = Array.from(document.querySelectorAll('.fb-cell')).filter(
+      (el) => (el as HTMLElement).style.background !== '',
+    )
+    expect(colored.length).toBeGreaterThan(0)
+    // No chord-tone dots are shown in CAGED view.
+    expect(document.querySelectorAll('.note-dot').length).toBe(0)
+  })
+
+  it('renders the CAGED letters below the fretboard, grouped by barre fret (key C)', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('View'), { target: { value: 'caged' } })
+    const labels = Array.from(document.querySelectorAll('.fret-label')).map((el) =>
+      Array.from(el.querySelectorAll('.fret-label-letter')).map((l) => l.textContent),
+    )
+    // C at open (nut), A at 3, G at 5, E at 8, D at 10 (for key C).
+    expect(labels).toContainEqual(['C'])
+    expect(labels).toContainEqual(['A'])
+    expect(labels).toContainEqual(['G'])
+    expect(labels).toContainEqual(['E'])
+    expect(labels).toContainEqual(['D'])
+  })
+
+  it('hides the Mode dropdown in CAGED view and restores it in Scale view', () => {
+    render(<App />)
+    expect(screen.getByLabelText('Mode')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Mode'), { target: { value: 'Dorian' } })
+    fireEvent.change(screen.getByLabelText('View'), { target: { value: 'caged' } })
+    expect(screen.queryByLabelText('Mode')).toBeNull()
+    fireEvent.change(screen.getByLabelText('View'), { target: { value: 'scale' } })
+    expect((screen.getByLabelText('Mode') as HTMLSelectElement).value).toBe('Dorian')
   })
 
   it('persists settings to localStorage after interaction', () => {

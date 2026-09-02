@@ -31,8 +31,8 @@ describe('Fretboard', () => {
 
   it('renders annotate-provided dots and shows note labels when enabled', () => {
     const annotate = (cells: FretCell[][]) => {
-      cells[0][1].dotClassName = 'tonic' // lowest string, fret 1 (F)
-      cells[2][5].dotClassName = 'fifth' // D string, fret 5
+      cells[0][1].dots.push({ className: 'tonic' }) // lowest string, fret 1 (F)
+      cells[2][5].dots.push({ className: 'fifth' }) // D string, fret 5
     }
     const { container } = render(
       <Fretboard tuning={['E', 'A', 'D', 'G', 'B', 'E']} numFrets={24} showNoteNames={true} annotate={annotate} />,
@@ -48,7 +48,7 @@ describe('Fretboard', () => {
 
   it('hides note labels inside dots when showNoteNames is false', () => {
     const annotate = (cells: FretCell[][]) => {
-      cells[0][1].dotClassName = 'tonic'
+      cells[0][1].dots.push({ className: 'tonic' })
     }
     const { container } = render(
       <Fretboard tuning={['E', 'A', 'D', 'G', 'B', 'E']} numFrets={24} showNoteNames={false} annotate={annotate} />,
@@ -56,9 +56,32 @@ describe('Fretboard', () => {
     expect(container.querySelector('.note-dot .dot-label')).toBeNull()
   })
 
+  it('shows a explicit dot label when provided regardless of showNoteNames', () => {
+    const annotate = (cells: FretCell[][]) => {
+      cells[0][1].dots.push({ className: 'caged-c', label: 'C' })
+    }
+    const { container } = render(
+      <Fretboard tuning={['E', 'A', 'D', 'G', 'B', 'E']} numFrets={24} showNoteNames={false} annotate={annotate} />,
+    )
+    const dot = container.querySelector('.note-dot.caged-c')!
+    expect(dot.querySelector('.dot-label')?.textContent).toBe('C')
+  })
+
+  it('renders multiple dots on one cell when they share a note position', () => {
+    const annotate = (cells: FretCell[][]) => {
+      cells[1][3].dots.push({ className: 'caged-c', label: 'C' })
+      cells[1][3].dots.push({ className: 'caged-a', label: 'A' })
+    }
+    const { container } = render(
+      <Fretboard tuning={['E', 'A', 'D', 'G', 'B', 'E']} numFrets={24} showNoteNames={false} annotate={annotate} />,
+    )
+    expect(container.querySelectorAll('.note-dot').length).toBe(2)
+    expect(container.querySelectorAll('.note-dot.stacked').length).toBe(2)
+  })
+
   it('puts the lowest string (E) at the bottom row', () => {
     const annotate = (cells: FretCell[][]) => {
-      cells[0][1].dotClassName = 'tonic' // lowest string fret 1
+      cells[0][1].dots.push({ className: 'tonic' }) // lowest string fret 1
     }
     const { container } = render(
       <Fretboard tuning={['E', 'A', 'D', 'G', 'B', 'E']} numFrets={24} showNoteNames={true} annotate={annotate} />,

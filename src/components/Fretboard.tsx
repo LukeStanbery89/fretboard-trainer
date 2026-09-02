@@ -2,17 +2,29 @@ import { transpose } from '../lib/notes'
 import { inlayDots, fretNumbers } from '../lib/fretboard'
 import type { CSSProperties } from 'react'
 
+export interface FretDot {
+  className: string
+  label?: string
+  isRoot?: boolean
+}
+
 export interface FretCell {
   /** 0 = open string (nut), 1+ = fret. */
   fret: number
   /** Index into tuning, 0 = lowest string. */
   stringIndex: number
   note: string
-  dotClassName?: string
-  dotLabel?: string
-  isRootDot?: boolean
-  /** Class added to the cell itself (e.g. CAGED region band). */
-  cellClassName?: string
+  /** Highlight dots positioned on this cell (0, 1, or more for shared notes). */
+  dots: FretDot[]
+  /** Optional CSS background override (e.g. a CAGED barre-color column). */
+  backgroundColor?: string
+}
+
+export interface FretLabel {
+  /** Fret column (0 = open/nut column). */
+  fret: number
+  /** Shape letter(s) to show, in order (e.g. ['C','A'] for a shared barre fret). */
+  shapes: string[]
 }
 
 export interface FretboardProps {
@@ -21,6 +33,8 @@ export interface FretboardProps {
   showNoteNames: boolean
   /** Fill cells with scale note dots (mutates the cells array in place). */
   annotate: (cells: FretCell[][]) => void
+  /** Optional letters rendered in a row below the fretboard, aligned to frets. */
+  fretLabels?: FretLabel[]
   onCellClick?: (cell: FretCell) => void
 }
 
@@ -29,6 +43,7 @@ export default function Fretboard({
   numFrets,
   showNoteNames,
   annotate,
+  fretLabels,
   onCellClick,
 }: FretboardProps) {
   const frets = fretNumbers(numFrets)
@@ -44,8 +59,8 @@ export default function Fretboard({
   ]
 
   const cells: FretCell[][] = tuning.map((open, si) => [
-    { fret: 0, stringIndex: si, note: open },
-    ...frets.map((f) => ({ fret: f, stringIndex: si, note: transpose(open, f) })),
+    { fret: 0, stringIndex: si, note: open, dots: [] },
+    ...frets.map((f) => ({ fret: f, stringIndex: si, note: transpose(open, f), dots: [] })),
   ])
 
   annotate(cells)
@@ -73,26 +88,29 @@ export default function Fretboard({
                   'fb-cell',
                   isNut ? 'nut-cell' : '',
                   cell.fret % 2 === 0 && cell.fret !== 0 ? 'even-fret' : '',
-                  cell.cellClassName ?? '',
                 ].join(' ')}
                 style={{
                   gridRow: si + 1,
                   gridColumn: cell.fret + 1,
+                  ...(cell.backgroundColor ? { background: cell.backgroundColor } : {}),
                 }}
                 onClick={onCellClick ? () => onCellClick(cell) : undefined}
               >
                 {isNut && <div className="nut" />}
-                {cell.dotClassName && (
+                {cell.dots.map((dot, di) => (
                   <div
-                    className={`note-dot ${cell.dotClassName} ${cell.isRootDot ? 'root' : ''}`}
+                    key={di}
+                    className={`note-dot ${dot.className} ${dot.isRoot ? 'root' : ''} ${
+                      cell.dots.length > 1 ? 'stacked' : ''
+                    }`}
                   >
-                    {(cell.dotLabel ?? (showNoteNames ? cell.note : null)) && (
+                    {(dot.label ?? (showNoteNames ? cell.note : null)) && (
                       <span className="dot-label">
-                        {cell.dotLabel ?? cell.note}
+                        {dot.label ?? cell.note}
                       </span>
                     )}
                   </div>
-                )}
+                ))}
               </div>
             )
           }),
@@ -123,6 +141,24 @@ export default function Fretboard({
           )
         })}
       </div>
+
+      {fretLabels && fretLabels.length > 0 && (
+        <div className="fretboard-labels" style={{ gridTemplateColumns: colTemplates.join(' ') }}>
+          {fretLabels.map((label) => (
+            <div
+              key={`l${label.fret}-${label.shapes.join('')}`}
+              className="fret-label"
+              style={{ gridColumn: label.fret + 1 }}
+            >
+              {label.shapes.map((shape) => (
+                <span key={shape} className={`fret-label-letter caged-${shape.toLowerCase()}`}>
+                  {shape}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -13,12 +13,12 @@
   --nut-color: #e8d9a8;
   --inlay-color: #555c6b;
 
-  --dot-tonic: #ff5d73;
-  --dot-third: #ffe066;
-  --dot-fifth: #66d9a8;
-  --dot-seventh: #7aa2ff;
-  --dot-dissonant: #b48cff;
-  --dot-single: #ff8c42;
+  --dot-tonic: #d84a60;
+  --dot-third: #cf9f00;
+  --dot-fifth: #44a77e;
+  --dot-seventh: #5b82d6;
+  --dot-dissonant: #8f68d6;
+  --dot-single: #cd6b2e;
 
   --caged-c: #3fa7d6;
   --caged-a: #7cc45a;
@@ -210,7 +210,6 @@
   justify-content: center;
   min-height: 46px;
   border-right: 1px solid var(--fret-line);
-  border-bottom: 1px solid var(--fret-line);
   font-size: 11px;
   color: var(--text-dim);
 }
@@ -308,7 +307,7 @@
 .note-dot.dissonant { background: var(--dot-dissonant); }
 .note-dot.single { background: var(--dot-single); }
 
-/* string lines between cells (not on the fret-marker row) */
+/* the strings themselves (no line on the fret-marker row) */
 .fb-cell:not(.fb-marker)::after {
   content: '';
   position: absolute;
@@ -319,6 +318,10 @@
   transform: translateY(-50%);
   background: var(--string-color);
   z-index: 1;
+}
+
+.app[data-theme='light'] .fb-cell:not(.fb-marker)::after {
+  opacity: 0.5;
 }
 
 .app[data-theme='light'] .fb-cell:not(.fb-marker)::after {
@@ -342,32 +345,51 @@
   gap: 6px;
 }
 
-.note-dot.caged-root {
+/* CAGED chord-tone dots, color coded by shape */
+.note-dot.caged-c { background: var(--caged-c); }
+.note-dot.caged-a { background: var(--caged-a); }
+.note-dot.caged-g { background: var(--caged-g); }
+.note-dot.caged-e { background: var(--caged-e); }
+.note-dot.caged-d { background: var(--caged-d); }
+
+/* CAGED root dots are a touch larger (they carry the shape color too) */
+.note-dot.caged-c.root,
+.note-dot.caged-a.root,
+.note-dot.caged-g.root,
+.note-dot.caged-e.root,
+.note-dot.caged-d.root {
   width: 34px;
   height: 34px;
   border-width: 3px;
 }
 
-/* CAGED region bands */
-.fb-cell.caged-c { background: color-mix(in srgb, var(--caged-c) 18%, transparent); }
-.fb-cell.caged-a { background: color-mix(in srgb, var(--caged-a) 18%, transparent); }
-.fb-cell.caged-g { background: color-mix(in srgb, var(--caged-g) 18%, transparent); }
-.fb-cell.caged-e { background: color-mix(in srgb, var(--caged-e) 18%, transparent); }
-.fb-cell.caged-d { background: color-mix(in srgb, var(--caged-d) 18%, transparent); }
+/* When two chord tones fall on the same cell (shared note position), nudge the
+   dots apart horizontally so both shapes' notes stay visible. */
+.note-dot.stacked {
+  width: 22px;
+  height: 22px;
+  border-width: 2px;
+}
 
-.fb-cell.caged-c .note-dot.caged-root { background: var(--caged-c); }
-.fb-cell.caged-a .note-dot.caged-root { background: var(--caged-a); }
-.fb-cell.caged-g .note-dot.caged-root { background: var(--caged-g); }
-.fb-cell.caged-e .note-dot.caged-root { background: var(--caged-e); }
-.fb-cell.caged-d .note-dot.caged-root { background: var(--caged-d); }
+.note-dot.stacked .dot-label {
+  font-size: 10px;
+}
+
+.note-dot.stacked:nth-child(1) {
+  margin-right: 12px;
+}
+
+.note-dot.stacked:nth-child(2) {
+  margin-left: 12px;
+}
 
 /* ===== Legend ===== */
 .legend {
   padding: 14px 24px;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-dim);
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -379,11 +401,12 @@
 
 .keydot {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  margin: 0 2px;
+  margin: 0 3px;
   vertical-align: middle;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .keydot.tonic { background: var(--dot-tonic); }
@@ -391,3 +414,32 @@
 .keydot.fifth { background: var(--dot-fifth); }
 .keydot.seventh { background: var(--dot-seventh); }
 .keydot.dissonant { background: var(--dot-dissonant); }
+.keydot.caged-c { background: var(--caged-c); }
+.keydot.caged-a { background: var(--caged-a); }
+.keydot.caged-g { background: var(--caged-g); }
+.keydot.caged-e { background: var(--caged-e); }
+.keydot.caged-d { background: var(--caged-d); }
+
+/* ===== CAGED barre-fret label row (below the fretboard) ===== */
+.fretboard-labels {
+  display: grid;
+  gap: 0;
+  margin-top: 4px;
+  padding: 0 1px;
+}
+
+.fret-label {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  min-height: 30px;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.fret-label-letter.caged-c { color: var(--caged-c); }
+.fret-label-letter.caged-a { color: var(--caged-a); }
+.fret-label-letter.caged-g { color: var(--caged-g); }
+.fret-label-letter.caged-e { color: var(--caged-e); }
+.fret-label-letter.caged-d { color: var(--caged-d); }

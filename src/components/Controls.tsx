@@ -120,22 +120,24 @@ export default function Controls({
         </select>
       </label>
 
-      <label className="field">
-        <span>Mode</span>
-        <select
-          value={mode.name}
-          onChange={(e) => {
-            const m = MODES.find((x) => x.name === e.target.value)
-            if (m) onModeChange(m)
-          }}
-        >
-          {MODES.map((m) => (
-            <option key={m.name} value={m.name}>
-              {m.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      {view !== 'caged' && (
+        <label className="field">
+          <span>Mode</span>
+          <select
+            value={mode.name}
+            onChange={(e) => {
+              const m = MODES.find((x) => x.name === e.target.value)
+              if (m) onModeChange(m)
+            }}
+          >
+            {MODES.map((m) => (
+              <option key={m.name} value={m.name}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
     </div>
   )
 }
