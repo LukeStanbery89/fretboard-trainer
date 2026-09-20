@@ -19,15 +19,9 @@ export const MODES: Mode[] = [
   { name: 'Locrian', degreeLabels: [], intervals: [0, 1, 3, 5, 6, 8, 10] },
 ]
 
-/** Interval class (0-11) -> label used for coloring (tonic, 3rd, 5th, ...). */
-export function intervalClassName(ic: number): string {
-  switch (ic % 12) {
-    case 0: return 'tonic'
-    case 2: case 4: return 'third'
-    case 7: return 'fifth'
-    case 1: case 3: case 6: case 8: case 10: return 'dissonant'
-    default: return 'seventh'
-  }
+/** 0-based scale degree (index into mode.intervals) for a relative interval, or -1 if not a scale tone. */
+export function degreeIndex(mode: Mode, rel: number): number {
+  return mode.intervals.indexOf(((rel % 12) + 12) % 12)
 }
 
 /** Chromatic indices (0-11) that belong to a scale. */

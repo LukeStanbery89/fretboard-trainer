@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Fretboard, { type FretCell, type FretLabel } from './components/Fretboard'
 import Controls, { type ViewMode, type TuningState } from './components/Controls'
 import SettingsPanel from './components/SettingsPanel'
-import { scaleTones, intervalClassName } from './lib/scales'
+import { scaleTones, degreeIndex } from './lib/scales'
 import { cagedBarreFrets } from './lib/caged'
 import { chromaticIndex } from './lib/notes'
 import { TUNING_PRESETS, defaultTuningForCount, CUSTOM_ID } from './lib/tunings'
@@ -76,12 +76,15 @@ function App() {
 
   const annotateScale = (cells: FretCell[][]) => {
     const tones = scaleTones(keyNote, mode)
+    const rootIc = chromaticIndex(keyNote)
     for (const row of cells) {
       for (const cell of row) {
         const ic = chromaticIndex(cell.note)
         if (tones.has(ic)) {
-          const cls = settings.colorByInterval ? intervalClassName(ic) : 'single'
-          cell.dots.push({ className: cls, isRoot: ic === 0 })
+          const rel = (ic - rootIc + 12) % 12
+          const degree = settings.colorByInterval ? degreeIndex(mode, rel) : -1
+          const cls = degree >= 0 ? `degree-${degree + 1}` : 'single'
+          cell.dots.push({ className: cls, isRoot: degree === 0 })
         }
       }
     }
@@ -162,7 +165,16 @@ function App() {
       <p className="legend">
         {view === 'scale' ? (
           settings.colorByInterval ? (
-            <>Scale: <KeyDot c="tonic" /> tonic <KeyDot c="third" /> 3rd <KeyDot c="fifth" /> 5th <KeyDot c="seventh" /> 7th <KeyDot c="dissonant" /> other</>
+            <>
+              Scale in <b>{keyNote} {modeName}</b>:{' '}
+              <KeyDot c="degree-1" /> 1
+              <KeyDot c="degree-2" /> 2
+              <KeyDot c="degree-3" /> 3
+              <KeyDot c="degree-4" /> 4
+              <KeyDot c="degree-5" /> 5
+              <KeyDot c="degree-6" /> 6
+              <KeyDot c="degree-7" /> 7
+            </>
           ) : (
             <>Showing <b>{keyNote} {modeName}</b> scale notes</>
           )
@@ -177,6 +189,45 @@ function App() {
           </>
         )}
       </p>
+
+      {view === 'caged' && (
+        <div className="caged-explainer">
+          <h2>How the CAGED system works</h2>
+          <p>
+            CAGED maps the neck using the five open chord shapes{' '}
+            <span className="caged-letter caged-c">C</span>{' '}
+            <span className="caged-letter caged-a">A</span>{' '}
+            <span className="caged-letter caged-g">G</span>{' '}
+            <span className="caged-letter caged-e">E</span>{' '}
+            <span className="caged-letter caged-d">D</span>, each of which turns
+            into a movable barre chord. The shapes always follow that same order
+            up the neck, so the five positions together cover the current key
+            across all 12 frets.
+          </p>
+          <ul>
+            <li>
+              <b>Colored with a letter below the fretboard:</b> each column marks
+              where that shape's barre sits, color-coded with its letter shown
+              underneath.
+            </li>
+            <li>
+              <b>At the nut (fret 0):</b> the shape is the open chord of the key
+              (open C for key C, open A for key A, and so on) — no barre needed.
+            </li>
+            <li>
+              <b>C and G shapes:</b> these only barre across the high strings, so
+              their barre sits below the full position; the column still marks
+              the exact fret to barre.
+            </li>
+          </ul>
+          <p className="last">
+            <b>How to use it:</b> pick a key above, then play each CAGED position
+            in order up the neck — C&nbsp;→&nbsp;A&nbsp;→&nbsp;G&nbsp;→&nbsp;E&nbsp;→&nbsp;D
+            (wrapping around as they rise). Learning to move between the barre
+            positions keeps you in the same key from any spot on the fretboard.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

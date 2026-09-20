@@ -13,11 +13,13 @@
   --nut-color: #e8d9a8;
   --inlay-color: #555c6b;
 
-  --dot-tonic: #d84a60;
-  --dot-third: #cf9f00;
-  --dot-fifth: #44a77e;
-  --dot-seventh: #5b82d6;
-  --dot-dissonant: #8f68d6;
+  --dot-d1: #d84a60;
+  --dot-d2: #e07836;
+  --dot-d3: #d0a034;
+  --dot-d4: #4cb97d;
+  --dot-d5: #2eb0ae;
+  --dot-d6: #5b82d6;
+  --dot-d7: #8f68d6;
   --dot-single: #cd6b2e;
 
   --caged-c: #3fa7d6;
@@ -47,11 +49,13 @@
   --nut-color: #b9a565;
   --inlay-color: #aeb4c0;
 
-  --dot-tonic: #e63d54;
-  --dot-third: #c9a500;
-  --dot-fifth: #1f9e6e;
-  --dot-seventh: #2f5bd8;
-  --dot-dissonant: #7d49c9;
+  --dot-d1: #e63d54;
+  --dot-d2: #d96a2b;
+  --dot-d3: #b89a1f;
+  --dot-d4: #1f9e6e;
+  --dot-d5: #1a8f8f;
+  --dot-d6: #2f5bd8;
+  --dot-d7: #7d49c9;
   --dot-single: #e0671f;
 }
 
@@ -160,7 +164,7 @@
 }
 
 .reset-btn:hover {
-  background: var(--dot-dissonant);
+  background: var(--dot-d7);
   color: #fff;
   border-color: transparent;
 }
@@ -294,17 +298,19 @@
 .note-dot.root::after {
   content: '';
   position: absolute;
-  inset: -5px;
+  inset: -6px;
   border-radius: 50%;
-  border: 2px dashed currentColor;
-  opacity: 0.7;
+  border: 3px dashed currentColor;
+  opacity: 1;
 }
 
-.note-dot.tonic { background: var(--dot-tonic); }
-.note-dot.third { background: var(--dot-third); }
-.note-dot.fifth { background: var(--dot-fifth); }
-.note-dot.seventh { background: var(--dot-seventh); }
-.note-dot.dissonant { background: var(--dot-dissonant); }
+.note-dot.degree-1 { background: var(--dot-d1); }
+.note-dot.degree-2 { background: var(--dot-d2); }
+.note-dot.degree-3 { background: var(--dot-d3); }
+.note-dot.degree-4 { background: var(--dot-d4); }
+.note-dot.degree-5 { background: var(--dot-d5); }
+.note-dot.degree-6 { background: var(--dot-d6); }
+.note-dot.degree-7 { background: var(--dot-d7); }
 .note-dot.single { background: var(--dot-single); }
 
 /* the strings themselves (no line on the fret-marker row) */
@@ -409,16 +415,71 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.keydot.tonic { background: var(--dot-tonic); }
-.keydot.third { background: var(--dot-third); }
-.keydot.fifth { background: var(--dot-fifth); }
-.keydot.seventh { background: var(--dot-seventh); }
-.keydot.dissonant { background: var(--dot-dissonant); }
+.keydot.degree-1 { background: var(--dot-d1); }
+.keydot.degree-2 { background: var(--dot-d2); }
+.keydot.degree-3 { background: var(--dot-d3); }
+.keydot.degree-4 { background: var(--dot-d4); }
+.keydot.degree-5 { background: var(--dot-d5); }
+.keydot.degree-6 { background: var(--dot-d6); }
+.keydot.degree-7 { background: var(--dot-d7); }
 .keydot.caged-c { background: var(--caged-c); }
 .keydot.caged-a { background: var(--caged-a); }
 .keydot.caged-g { background: var(--caged-g); }
 .keydot.caged-e { background: var(--caged-e); }
 .keydot.caged-d { background: var(--caged-d); }
+
+/* ===== CAGED explainer ===== */
+.caged-explainer {
+  margin: 4px 24px 24px;
+  padding: 16px 18px;
+  max-width: 760px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.caged-explainer h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  color: var(--text);
+}
+
+.caged-explainer p {
+  margin: 0 0 10px;
+}
+
+.caged-explainer p.last {
+  margin-bottom: 0;
+}
+
+.caged-explainer ul {
+  margin: 0 0 10px;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.caged-explainer li::marker {
+  color: var(--accent);
+}
+
+.caged-explainer b {
+  color: var(--text);
+}
+
+.caged-explainer .caged-letter {
+  font-weight: 700;
+}
+
+.caged-explainer .caged-letter.caged-c { color: var(--caged-c); }
+.caged-explainer .caged-letter.caged-a { color: var(--caged-a); }
+.caged-explainer .caged-letter.caged-g { color: var(--caged-g); }
+.caged-explainer .caged-letter.caged-e { color: var(--caged-e); }
+.caged-explainer .caged-letter.caged-d { color: var(--caged-d); }
 
 /* ===== CAGED barre-fret label row (below the fretboard) ===== */
 .fretboard-labels {

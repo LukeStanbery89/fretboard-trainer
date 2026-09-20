@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { MODES, scaleTones, intervalClassName, SCALE_ROOTS } from '../scales'
+import { MODES, scaleTones, degreeIndex, SCALE_ROOTS } from '../scales'
 
 describe('MODES', () => {
   it('exposes all 7 church modes', () => {
@@ -72,14 +72,23 @@ describe('SCALE_ROOTS', () => {
   })
 })
 
-describe('intervalClassName', () => {
-  it('classifies tonics, thirds, fifths, sevenths and others', () => {
-    expect(intervalClassName(0)).toBe('tonic')
-    expect(intervalClassName(12)).toBe('tonic')
-    expect(intervalClassName(2)).toBe('third')
-    expect(intervalClassName(4)).toBe('third')
-    expect(intervalClassName(7)).toBe('fifth')
-    expect(intervalClassName(11)).toBe('seventh')
-    expect(intervalClassName(1)).toBe('dissonant')
+describe('degreeIndex', () => {
+  it('maps each mode interval to its 0-based scale degree', () => {
+    for (const mode of MODES) {
+      mode.intervals.forEach((iv, degree) => {
+        expect(degreeIndex(mode, iv), `${mode.name} interval ${iv}`).toBe(degree)
+      })
+    }
+  })
+
+  it('returns -1 for non-scale intervals', () => {
+    expect(degreeIndex(MODES[0], 6)).toBe(-1) // no F# in C Ionian
+    expect(degreeIndex(MODES[0], 1)).toBe(-1) // no C# in C Ionian
+  })
+
+  it('normalizes wrapped intervals', () => {
+    expect(degreeIndex(MODES[0], 12)).toBe(0) // same class as the tonic
+    expect(degreeIndex(MODES[0], 14)).toBe(1) // wraps to the 2nd (D) in C Ionian
+    expect(degreeIndex(MODES[0], -10)).toBe(1) // negative offset wraps too
   })
 })

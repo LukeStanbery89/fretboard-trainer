@@ -35,6 +35,18 @@ describe('Controls', () => {
     expect(labels.at(-1)).toBe('Custom')
   })
 
+  it('shows 4-string bass presets when 4 strings selected', () => {
+    render(
+      <Controls {...props({ strings: 4, tuning: { id: 'bass-4', notes: ['E', 'A', 'D', 'G'] } })} />,
+    )
+    const select = screen.getByLabelText('Tuning')
+    const labels = Array.from(select.querySelectorAll('option')).map((o) => o.textContent)
+    expect(labels).toContain('Four-String Bass')
+    expect(labels).toContain('Drop D (4)')
+    expect(labels).not.toContain('E Standard')
+    expect(labels.at(-1)).toBe('Custom')
+  })
+
   it('shows 7-string presets when 7 strings selected', () => {
     render(<Controls {...props({ strings: 7, tuning: { id: 'b-standard', notes: ['B','E','A','D','G','B','E'] } })} />)
     const select = screen.getByLabelText('Tuning')

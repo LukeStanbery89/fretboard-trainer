@@ -16,11 +16,24 @@ describe('App integration', () => {
 
   it('shows scale dots for the default C Ionian', () => {
     render(<App />)
-    // tonic ring on C cells; C is the key, so root dots exist
-    expect(document.querySelectorAll('.note-dot.tonic').length).toBeGreaterThan(0)
-    expect(document.querySelectorAll('.note-dot.tonic.root').length).toBeGreaterThan(0)
-    // C Ionian is C major: no F# (chromatic 6) in tone set
-    expect(document.querySelectorAll('.note-dot.dissonant').length).toBeGreaterThanOrEqual(0)
+    // each scale degree gets its own class; tonic gets the root ring
+    for (const d of ['degree-1', 'degree-2', 'degree-3', 'degree-4', 'degree-5', 'degree-6', 'degree-7']) {
+      expect(document.querySelectorAll(`.note-dot.${d}`).length).toBeGreaterThan(0)
+    }
+    expect(document.querySelectorAll('.note-dot.degree-1.root').length).toBeGreaterThan(0)
+  })
+
+  it('recolours notes to follow the selected key (G major raises G to tonic)', () => {
+    render(<App />)
+    fireEvent.change(screen.getByLabelText('Key'), { target: { value: 'G' } })
+    // every tonic-coloured dot is a G, and no C is ever coloured as tonic
+    const tonicLabels = Array.from(document.querySelectorAll('.note-dot.degree-1 .dot-label')).map(
+      (el) => el.textContent,
+    )
+    expect(tonicLabels.length).toBeGreaterThan(0)
+    expect(tonicLabels.every((l) => l === 'G')).toBe(true)
+    expect(tonicLabels.includes('C')).toBe(false)
+    expect(document.querySelectorAll('.note-dot.degree-1.root').length).toBeGreaterThan(0)
   })
 
   it('switches string count and updates tuning options', () => {
@@ -92,10 +105,11 @@ describe('App integration', () => {
     expect((screen.getByLabelText('Strings') as HTMLSelectElement).value).toBe('6')
   })
 
-  it('renders a legend describing the scale interval coloring by default', () => {
+  it('renders a legend describing the scale degree coloring by default', () => {
     render(<App />)
-    expect(screen.getByText(/Scale:/i)).toBeInTheDocument()
-    expect(screen.getByText(/tonic/i)).toBeInTheDocument()
+    expect(screen.getByText(/Scale in/i)).toBeInTheDocument()
+    expect(document.querySelectorAll('.keydot.degree-1').length).toBe(1)
+    expect(document.querySelectorAll('.keydot.degree-7').length).toBe(1)
   })
 
   it('shows the key and mode in the legend when interval coloring is off', () => {

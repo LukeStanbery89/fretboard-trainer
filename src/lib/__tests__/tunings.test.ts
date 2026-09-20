@@ -19,10 +19,25 @@ describe('TUNING_PRESETS', () => {
     const labels = TUNING_PRESETS[6].map((p) => p.label)
     expect(labels).toEqual(
       expect.arrayContaining([
-        'E Standard', 'D# Standard', 'C Standard',
+        'E Standard', 'D# Standard', 'D Standard',
         'Drop D', 'Drop C#', 'Drop C', 'DADGAD', 'Baritone', 'Custom',
       ]),
     )
+  })
+
+  it('uses D Standard (all strings down one step) instead of C Standard', () => {
+    const dStandard = TUNING_PRESETS[6].find((p) => p.id === 'd-standard')
+    expect(dStandard?.notes).toEqual(['D', 'G', 'C', 'F', 'A', 'D'])
+    expect(TUNING_PRESETS[6].some((p) => p.id === 'c-standard')).toBe(false)
+  })
+
+  it('offers Standard and Drop variants at 0, 1/2, and 1 step down for each count', () => {
+    for (const n of [4, 5, 7, 8, 9]) {
+      const presets = TUNING_PRESETS[n].filter((p) => p.id !== CUSTOM_ID)
+      expect(presets.map((p) => p.id), `count ${n}`).toHaveLength(6)
+    }
+    // 6-string has extra DADGAD/Baritone options on top of the standard set.
+    expect(TUNING_PRESETS[6].filter((p) => p.id !== CUSTOM_ID).length).toBe(8)
   })
 
   it('has the required 7-string options', () => {
@@ -30,6 +45,16 @@ describe('TUNING_PRESETS', () => {
     expect(labels).toEqual(
       expect.arrayContaining(['B Standard', 'A# Standard', 'A Standard', 'Drop A', 'Drop G#', 'Drop G', 'Custom']),
     )
+  })
+
+  it('treats 4 strings as a bass (E A D G, lowest first)', () => {
+    const labels = TUNING_PRESETS[4].map((p) => p.label)
+    expect(TUNING_PRESETS[4][0].notes).toEqual(['E', 'A', 'D', 'G'])
+    expect(labels).not.toEqual(expect.arrayContaining(['Tenor Standard', 'Baritone Ukulele']))
+  })
+
+  it('treats 5 strings as a bass (B E A D G, lowest first)', () => {
+    expect(TUNING_PRESETS[5][0].notes).toEqual(['B', 'E', 'A', 'D', 'G'])
   })
 
   it('always ends with a Custom option for every string count', () => {
